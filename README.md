@@ -1,2 +1,4 @@
 # eurl
-EURL - Encryption URL is a lightweight tool used for encrypting and decrypting webpages or any data 
+SED - Simple Encrypt and Decryption
+
+SED is a lightweight tool used for cryptography needs.
