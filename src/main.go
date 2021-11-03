@@ -21,8 +21,9 @@ func main() {
 		encrypt := []byte(handleArg("--encrypt"))
 		algo := handleArg("-t")
 		encode := handleArg("--encode")
-		length, err := strconv.Atoi("12345")
+		length, err := strconv.Atoi(handleArg("-l"))
 		CheckError(err)
+		key := generateKey(length)
 		if encrypt == nil {
 			println("Error: No data provided")
 			println(getHelp())
@@ -36,8 +37,26 @@ func main() {
 		if encode == "" {
 			encode = "false"
 		}
-		encryptedData := encryptData(encrypt, algo, encode, length)
-		fmt.Print(encryptedData)
+		encryptedData := encryptData(encrypt, algo, encode, length, key)
+		fmt.Println(string(encryptedData) + " " + string(key))
+	}
+
+	if argExists("--decrypt") {
+		decrypt := []byte(handleArg("--decrypt"))
+		key := []byte(handleArg("--key"))
+		encode := handleArg("--decode")
+		algo := handleArg("-t")
+		if decrypt == nil {
+			println("Error: No data provided")
+			println(getHelp())
+			os.Exit(1)
+		}
+		if key == nil {
+			println("Error: No key provided")
+			println(getHelp())
+			os.Exit(1)
+		}
+		
 	}
 }
 
@@ -110,6 +129,47 @@ func encryptData(data []byte, algo string, encode string, length int, key []byte
 			return aesEncrypt(data, key)
 		}
 	}
+	if algo == "des" {
+		if key == nil {
+			key = generateKey(length)
+		}
+		if encode == "base64" {
+			return base64Encode(desEncrypt(data, key))
+		} else if encode == "hex" {
+			return hexEncode(desEncrypt(data, key))
+		} else {
+			return desEncrypt(data, key)
+		}
+	}
+	return nil
+}
+
+func decryptData(data []byte, algo string, encode string, key []byte) []byte {
+	// Decrypts the data using the key
+	// encodes if encode == base64 or == hex
+	// returns the decrypted data
+	// algo is the algorithm to use
+	// output is the output file if specified
+	// key is the key to use
+	if algo == "aes" {
+		if encode == "base64" {
+			return aesDecrypt(base64Decode(data), key)
+		} else if encode == "hex" {
+			return aesDecrypt(hexDecode(data), key)
+		} else {
+			return aesDecrypt(data, key)
+		}
+	}
+	if algo == "des" {
+		if encode == "base64" {
+			return desDecrypt(base64Decode(data), key)
+		} else if encode == "hex" {
+			return desDecrypt(hexDecode(data), key)
+		} else {
+			return desDecrypt(data, key)
+		}
+	}
+	return nil
 }
 
 func generateKey(length int) []byte {
@@ -149,16 +209,26 @@ func desDecrypt(ct []byte, key []byte) []byte {
 	return out
 }
 
-/************
- * Encoding *
- ************/
+/***********************
+ * Encoding / Decoding *
+ ***********************/
 
 func base64Encode(data []byte) []byte {
 	return []byte(base64.StdEncoding.EncodeToString(data))
 }
 
+func base64Decode(data []byte) []byte {
+	decoded, err := base64.StdEncoding.DecodeString(string(data))
+	CheckError(err)
+	return decoded
+}
+
 func hexEncode(data []byte) []byte {
 	return []byte(fmt.Sprintf("%x", data))
+}
+
+func hexDecode(data []byte) []byte {
+	return []byte(fmt.Sprintf("%s", data))
 }
 
 func CheckError(err error) {
