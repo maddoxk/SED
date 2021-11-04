@@ -3,6 +3,13 @@
 
 **SED** is a **lightweight tool used for cryptography needs.**
 
+    TODO:
+		- Translate to GO API
+		- Format output to JSON
+		- Option to output to file
+		
+		(Maybe) - Set up webserver API
+
 **Usage:**
 
     Usage: ./sed <command>
