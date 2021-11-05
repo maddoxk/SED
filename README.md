@@ -4,7 +4,7 @@
 **SED** is a **lightweight tool used for cryptography needs.**
 
     TODO:
-    		- Finish decryption handler
+    	- Finish decryption handler
 		- Translate to GO API
 		- Format output to JSON
 		- Option to output to file
